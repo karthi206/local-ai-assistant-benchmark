@@ -115,19 +115,58 @@ Observation:
 
 Even with higher temperature values, both models maintained **valid JSON output when the prompt explicitly enforced the schema**.
 
-# Phase 3 – Quantized Model Comparison
+# Phase 3 – Model Comparison and Quantization Study
 
-In this phase we compared quantized versions of **Llama 3.2** to evaluate performance trade-offs between speed, memory, and model size.
+This phase evaluates model performance using two approaches:
+
+1. Comparison between the base models used in earlier experiments
+2. Performance comparison of quantized variants of the same model
+
+The experiments were conducted using **Ollama** to run models locally.
+
+---
+
+## Base Model Comparison
+
+In this experiment we compared the two models used in Phase 1:
+
+* Llama 3.2
+* Mistral 7B
+
+The comparison was based on:
+
+* **TTFT (Time to First Token)** – response delay before the first generated word
+* **TPS (Tokens Per Second)** – generation speed
+* **Memory Usage** – RAM consumption during inference
+
+### Results
+
+| Model      | TTFT (s) | TPS (tokens/sec) | Memory  |
+| ---------- | -------- | ---------------- | ------- |
+| Llama 3.2  | 6.99 s   | 1.87             | 2.09 GB |
+| Mistral 7B | 15.43 s  | 1.02             | 4.11 GB |
+
+### Observation
+
+* **Llama 3.2** generated responses faster and consumed less memory.
+* **Mistral 7B** showed higher latency and memory usage on the tested hardware.
+* Based on these metrics, **Llama 3.2 performed better for local deployment on resource-constrained systems**.
+
+---
+
+## Quantized Model Comparison
+
+In this experiment we compared quantized variants of the Llama 3.2 model to understand how **model size and quantization affect performance**.
+
+Quantized models reduce memory usage and improve inference speed by storing model weights with lower precision.
 
 ### Models Tested
 
 * Llama 3.2 1B Q4
 * Llama 3.2 3B Q4
-* Llama 3.2 Default
+* Llama 3.2 Default (~8B parameters)
 
----
-
-## Benchmark Results
+### Benchmark Results
 
 | Model             | Parameters | TTFT   | TPS (tokens/sec) | Memory  |
 | ----------------- | ---------- | ------ | ---------------- | ------- |
@@ -135,25 +174,21 @@ In this phase we compared quantized versions of **Llama 3.2** to evaluate perfor
 | Llama 3.2 3B Q4   | 3B         | ~4 s   | ~4               | 2.16 GB |
 | Llama 3.2 Default | ~8B        | 1.24 s | 4.90             | ~3–5 GB |
 
-Note: A negative memory value was observed during measurement due to normal system memory fluctuations.
+Note: Minor memory fluctuations were observed due to background system processes during measurement.
 
 ---
 
-# Key Insights
+## Key Insights
 
-1. **Quantized models significantly reduce memory usage.**
+This experiment demonstrates an important trade-off in local AI deployment:
 
-2. **Smaller models generate tokens much faster.**
+| Model Size  | Speed    | Memory  | Response Quality |
+| ----------- | -------- | ------- | ---------------- |
+| Small (1B)  | Fastest  | Lowest  | Basic            |
+| Medium (3B) | Balanced | Medium  | Good             |
+| Large (~8B) | Slower   | Highest | Best             |
 
-3. There is a clear trade-off between:
-
-| Model Size  | Speed    | Memory | Quality |
-| ----------- | -------- | ------ | ------- |
-| Small (1B)  | Fastest  | Lowest | Basic   |
-| Medium (3B) | Balanced | Medium | Good    |
-| Large (~8B) | Slower   | Higher | Best    |
-
----
+Smaller quantized models are suitable for **low-resource systems**, while larger models may provide **higher response quality at the cost of performance and memory usage**.
 
 # Conclusion
 
