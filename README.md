@@ -48,19 +48,22 @@ This phase ensures that the language model produces **reliable structured data**
 Implemented:
 
 * JSON schema outputs
-* Validation using **Pydantic**
+* Validation using Pydantic
 * Retry mechanism for invalid responses
+* Temperature experiments to observe response variability
 
 ---
 
 ## JSON Output Test
 
-| Model      | JSON Output                                        |
-| ---------- | -------------------------------------------------- |
-| Llama 3.2  | `{"name": "John", "age": "25", "city": "Chennai"}` |
-| Mistral 7B | `{"name": "John", "age": "25", "city": "Chennai"}` |
+| Model      | JSON Output                                      |
+| ---------- | ------------------------------------------------ |
+| Llama 3.2  | {"name": "John", "age": "25", "city": "Chennai"} |
+| Mistral 7B | {"name": "John", "age": "25", "city": "Chennai"} |
 
-Both models successfully produced structured JSON outputs.
+Observation:
+
+Both models successfully generated **structured JSON outputs** following the prompt instructions.
 
 ---
 
@@ -73,8 +76,7 @@ Both models successfully produced structured JSON outputs.
 
 Observation:
 
-Pydantic successfully validated and converted the data types
-(for example `"25"` → `25`).
+Pydantic validated the output schema and automatically converted `"25"` (string) into `25` (integer).
 
 ---
 
@@ -87,9 +89,31 @@ Pydantic successfully validated and converted the data types
 
 Observation:
 
-The retry mechanism was implemented but **not triggered**, since both models produced valid structured outputs immediately.
+The retry mechanism was implemented to handle invalid outputs, but it was **not triggered during testing** because both models returned valid structured outputs.
 
 ---
+
+## Temperature Experiment
+
+Temperature controls the **randomness of model responses**.
+
+Lower temperature → more deterministic outputs
+Higher temperature → more creative / variable outputs
+
+### Temperature Test Results
+
+| Model      | Temperature | Output Consistency                     |
+| ---------- | ----------- | -------------------------------------- |
+| Llama 3.2  | 0.1         | Stable structured JSON                 |
+| Llama 3.2  | 0.5         | Slight variation but valid JSON        |
+| Llama 3.2  | 0.9         | Higher randomness but schema preserved |
+| Mistral 7B | 0.1         | Stable structured JSON                 |
+| Mistral 7B | 0.5         | Slight variation                       |
+| Mistral 7B | 0.9         | Increased randomness                   |
+
+Observation:
+
+Even with higher temperature values, both models maintained **valid JSON output when the prompt explicitly enforced the schema**.
 
 # Phase 3 – Quantized Model Comparison
 
